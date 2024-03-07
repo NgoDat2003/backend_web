@@ -1,6 +1,6 @@
-import sequelize from "sequelize";
+import Sequelize from "sequelize";
 
-const sequelize = new sequelize("database", "username", "password", {
+const sequelize = new Sequelize("BE_SHOP", "root", null, {
   host: "localhost",
   dialect: mysql,
 });
