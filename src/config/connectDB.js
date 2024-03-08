@@ -1,8 +1,9 @@
 import Sequelize from "sequelize";
 
-const sequelize = new Sequelize("BE_SHOP", "root", null, {
+const sequelize = new Sequelize("shop_be", "root", null, {
   host: "localhost",
-  dialect: mysql,
+  dialect: "mysql",
+  logging: false,
 });
 const connect = async () => {
   try {
