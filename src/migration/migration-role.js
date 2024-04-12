@@ -11,7 +11,7 @@ module.exports = {
       roleName: {
         type: Sequelize.STRING,
       },
-      decription: {
+      description: {
         type: Sequelize.STRING,
       },
       createdAt: {

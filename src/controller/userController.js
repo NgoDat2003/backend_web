@@ -16,4 +16,20 @@ let readAllUser = async (req, res) => {
     });
   }
 };
-module.exports = {readAllUser}
+const handleRegister = async (req, res) => {
+  let data = await userService.createNewUser(req, res);
+  return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+  });
+}
+const handleLogin = async (req, res) => {
+  let data = await userService.login(req, res);
+  return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+  });
+}
+module.exports = {readAllUser, handleRegister, handleLogin}
