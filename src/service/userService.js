@@ -1,6 +1,8 @@
 import db from "../models/index";
 import bcrypt from "bcryptjs";
 import jwtMiddleware from "../middleware/jwtMiddleware";
+import roleService from "./roleService";
+import { raw } from "body-parser";
 const hashPassword = (password) => {
   const salt = bcrypt.genSaltSync(10);
   const hashedPassword = bcrypt.hashSync(password, salt);
@@ -182,7 +184,17 @@ const login = async (req, res) => {
       where: {
         email: email,
       },
-      attributes: ["id", "email", "firstName", "lastName", "roleid","image","password"],
+      attributes: [
+        "id",
+        "email",
+        "firstName",
+        "lastName",
+        "roleid",
+        "image",
+        "password",
+      ],
+      nest: true,
+      raw: true,
     });
     if (!user) {
       return {
@@ -193,12 +205,23 @@ const login = async (req, res) => {
     }
     const checkPass = checkPassword(password, user.password);
     if (user && checkPass) {
-      delete user.password;
+      let payload = {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        roleId: user.roleid,
+        image: user.image,
+      };
       let dataToken = jwtMiddleware.createToken(user);
       return {
         EM: "Login success",
         EC: "0",
-        DT: dataToken,
+        // DT: dataToken,
+        DT: {
+          user: payload,
+          token: dataToken,
+        },
       };
     } else {
       return {
@@ -216,4 +239,4 @@ const login = async (req, res) => {
     };
   }
 };
-module.exports = { readAllUser, createNewUser, updateUser, deleteUser,login};
+module.exports = { readAllUser, createNewUser, updateUser, deleteUser, login };

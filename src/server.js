@@ -4,10 +4,12 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import connect from './config/connectDB';
 import initWebRoute from './routers/api';
+import configCors from './config/cors';
 require('dotenv').config()
 
 const app = express();
 configViewEngine(app);
+configCors(app);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());

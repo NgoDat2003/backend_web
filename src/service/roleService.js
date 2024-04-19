@@ -127,4 +127,5 @@ const deleteRole = async (roleId) => {
   }
 };
 
+
 export default { checkRole, createRole, readAllRole, readRoleById, updateRole, deleteRole};
