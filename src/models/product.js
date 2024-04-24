@@ -1,7 +1,5 @@
-'use strict';
-const {
-  Model
-} = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Product extends Model {
     /**
@@ -11,21 +9,42 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.hasMany(models.OrderDetail, { foreignKey: 'productId' });
-      this.belongsTo(models.Category, { foreignKey: 'categoryId' });
-      this.hasMany(models.Review, { foreignKey: 'productId' });
+      this.hasMany(models.OrderDetail, { foreignKey: "productId" });
+      this.belongsTo(models.Category, { foreignKey: "categoryId" });
+      this.hasMany(models.Review, { foreignKey: "productId" });
+      this.hasMany(models.Image, { foreignKey: "productId" });
     }
-  };
-  Product.init({
-    productName: DataTypes.STRING,
-    categoryId: DataTypes.INTEGER,
-    price: DataTypes.DECIMAL,
-    stockQuantity: DataTypes.INTEGER,
-    description: DataTypes.STRING,
-    image: DataTypes.STRING
-  }, {
-    sequelize,
-    modelName: 'Product',
-  });
+  }
+  Product.init(
+    {
+      productName: DataTypes.STRING,
+      categoryId: DataTypes.INTEGER,
+      price: DataTypes.DECIMAL,
+      stockQuantity: DataTypes.INTEGER,
+      description: DataTypes.STRING,
+      mainImage: DataTypes.STRING,
+      // Thêm các trường mới cho mỗi loại sản phẩm
+      // Màn hình máy tính
+      screenBrand: DataTypes.STRING,
+      screenSize: DataTypes.STRING,
+      resolution: DataTypes.STRING,
+      panelType: DataTypes.STRING,
+      // PC bộ
+      pcBrand: DataTypes.STRING,
+      cpuSeries: DataTypes.STRING,
+      ramSize: DataTypes.STRING,
+      // Laptop
+      laptopBrand: DataTypes.STRING,
+      color: DataTypes.STRING,
+      cpuSeries: DataTypes.STRING,
+      // Thiết bị âm thanh
+      audioBrand: DataTypes.STRING,
+      microphoneType: DataTypes.STRING,
+    },
+    {
+      sequelize,
+      modelName: "Product",
+    }
+  );
   return Product;
 };

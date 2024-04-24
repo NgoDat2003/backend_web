@@ -70,4 +70,44 @@ const handleGetAccount = async (req, res) => {
     });
   }
 };
-module.exports = { readAllUser, handleRegister, handleLogin, handleGetAccount,handleLogout };
+const handleUpdateUser = async (req, res) => {
+  try {
+    let data = await userService.updateUser(req, res);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      EM: "error from server", // error message
+      EC: "-1", // error code
+      DT: "", // data
+    });
+  }
+};
+const handleReadUserPaginate = async (req, res) => {
+  try {
+    let data = await userService.readUserPaginate(req, res);
+    return res.status(200).json({
+      EM: data.EM,
+      EC: data.EC,
+      DT: data.DT,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      EM: "error from server", // error message
+      EC: "-1", // error code
+      DT: "", // data
+    });
+  }
+};
+module.exports = {
+  readAllUser,
+  handleRegister,
+  handleLogin,
+  handleGetAccount,
+  handleLogout,
+  handleUpdateUser,
+  handleReadUserPaginate
+};

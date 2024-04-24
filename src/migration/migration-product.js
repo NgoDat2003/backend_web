@@ -23,7 +23,48 @@ module.exports = {
       description: {
         type: Sequelize.STRING,
       },
-      image: {
+      mainImage: {
+        type: Sequelize.STRING,
+      },
+            // Thêm các trường mới cho mỗi loại sản phẩm
+      // Màn hình máy tính
+      screenBrand: {
+        type: Sequelize.STRING,
+      },
+      screenSize: {
+        type: Sequelize.STRING,
+      },
+      resolution: {
+        type: Sequelize.STRING,
+      },
+      panelType: {
+        type: Sequelize.STRING,
+      },
+      // PC bộ
+      pcBrand: {
+        type: Sequelize.STRING,
+      },
+      cpuSeries: {
+        type: Sequelize.STRING,
+      },
+      ramSize: {
+        type: Sequelize.STRING,
+      },
+      // Laptop
+      laptopBrand: {
+        type: Sequelize.STRING,
+      },
+      color: {
+        type: Sequelize.STRING,
+      },
+      laptopCpuSeries: {
+        type: Sequelize.STRING,
+      },
+      // Thiết bị âm thanh
+      audioBrand: {
+        type: Sequelize.STRING,
+      },
+      microphoneType: {
         type: Sequelize.STRING,
       },
       createdAt: {

@@ -104,9 +104,6 @@ let updateUser = async (req, res) => {
       email,
       phoneNumber,
       address,
-      password,
-      roleId,
-      image,
     } = req.body;
 
     // Kiểm tra xem người dùng có tồn tại trong cơ sở dữ liệu không
@@ -125,9 +122,6 @@ let updateUser = async (req, res) => {
     user.email = email || user.email;
     user.phoneNumber = phoneNumber || user.phoneNumber;
     user.address = address || user.address;
-    user.password = password ? hashPassword(password) : user.password;
-    user.roleId = roleId || user.roleId;
-    user.image = image || user.image;
 
     // Lưu thông tin người dùng đã cập nhật vào cơ sở dữ liệu
     await user.save();
@@ -192,6 +186,8 @@ const login = async (req, res) => {
         "roleid",
         "image",
         "password",
+        "address",
+        "phoneNumber",
       ],
       nest: true,
       raw: true,
@@ -205,6 +201,7 @@ const login = async (req, res) => {
     }
     const checkPass = checkPassword(password, user.password);
     if (user && checkPass) {
+      console.log("user: ", user);
       let payload = {
         id: user.id,
         email: user.email,
@@ -212,6 +209,8 @@ const login = async (req, res) => {
         lastName: user.lastName,
         roleId: user.roleid,
         image: user.image,
+        address: user.address,
+        phoneNumber: user.phoneNumber,
       };
       let dataToken = jwtMiddleware.createToken(user);
       return {
@@ -239,4 +238,54 @@ const login = async (req, res) => {
     };
   }
 };
-module.exports = { readAllUser, createNewUser, updateUser, deleteUser, login };
+let readUserPaginate = async (req, res) => {
+  try {
+    console.log(req.query);
+    const limit = req.query.limit;
+    const currentPage = req.query.currentPage;
+    const totalItems = await db.User.count();
+    const offset = (currentPage - 1) * limit;
+    const users = await db.User.findAll({
+      attributes: [
+        "id",
+        "email",
+        "firstName",
+        "lastName",
+        "roleid",
+        "image",
+        "address",
+        "phoneNumber",
+      ],
+      include: [
+        {
+          model: db.Role,
+          attributes: ["id", "roleName"],
+        },
+      ],
+      nest: true,
+      raw: true,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+    });
+    const totalPages = Math.ceil(totalItems / limit);
+    let data = {
+      currentPage: currentPage,
+      totalPage: totalPages,
+      data: users,
+      totalItems: totalItems,
+    };
+    return {
+      EM: "Get all product success",
+      EC: "0",
+      DT: data,
+    };
+  } catch (error) {
+    console.log("error read all user: ", error);
+    return {
+      EM: "Get all product failed",
+      EC: "-1",
+      DT: error,
+    };
+  }
+};
+module.exports = { readAllUser, createNewUser, updateUser, deleteUser, login,readUserPaginate };
