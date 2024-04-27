@@ -1,4 +1,6 @@
 import jwt from "jsonwebtoken";
+import fs from "fs";
+import path from "path";
 const nonCheckToken = [
   "/login",
   "/register",
@@ -20,10 +22,30 @@ const verifyToken = (token) => {
     return null;
   }
 };
+const getTokenFromBearer = (req) => {
+  // Get auth header value
+  const bearerHeader = req.headers["authorization"];
+
+  // Check if bearer is undefined
+  if (typeof bearerHeader !== "undefined") {
+    // Split at the space
+    const bearer = bearerHeader.split(" ");
+
+    // Get token from array
+    const bearerToken = bearer[1];
+
+    return bearerToken;
+  }
+
+  // Return null if no bearer token
+  return null;
+};
 const checkUserToken = (req, res, next) => {
   // console.log(req.cookies);
   const token = req.cookies.token;
-  if (!token) {
+  const bearer = getTokenFromBearer(req);
+  const tokenNew = token || bearer;
+  if (!tokenNew) {
     return res.status(401).json({
       EM: "Token not found",
       EC: "1",
@@ -44,7 +66,7 @@ const checkUserToken = (req, res, next) => {
         phoneNumber: decoded.payload.phoneNumber,
       };
       req.user = payload;
-      req.token = token;
+      req.token = tokenNew;
       next();
     }
   } catch (error) {
@@ -56,4 +78,21 @@ const checkUserToken = (req, res, next) => {
     });
   }
 };
-module.exports = { createToken, verifyToken, checkUserToken };
+const handleUpload = (req, res) => {
+  try {
+    return res.status(200).json({
+      EC: 0,
+      EM: "Upload file successfully",
+      DT: req.file,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      EM: "Upload file failed",
+      DT: "",
+      EC: -1,
+    });
+  }
+};
+
+module.exports = { createToken, verifyToken, checkUserToken, handleUpload };

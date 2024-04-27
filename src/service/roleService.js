@@ -48,7 +48,7 @@ const readAllRole = async () => {
     return {
       EM: "Get all role failed",
       EC: "-1",
-      DT: error,
+      DT: [],
     };
   }
 };

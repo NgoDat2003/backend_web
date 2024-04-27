@@ -1,8 +1,16 @@
 import db from "../models/index";
 import bcrypt from "bcryptjs";
 import jwtMiddleware from "../middleware/jwtMiddleware";
-import roleService from "./roleService";
-import { raw } from "body-parser";
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "src/public/upload/"); // thay './uploads/' bằng thư mục bạn muốn lưu file
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  },
+});
 const hashPassword = (password) => {
   const salt = bcrypt.genSaltSync(10);
   const hashedPassword = bcrypt.hashSync(password, salt);
@@ -49,7 +57,6 @@ let createNewUser = async (req, res) => {
       image,
     } = req.body;
 
-    // Kiểm tra xem email đã tồn tại trong cơ sở dữ liệu chưa
     const checkEmail = await isEmail(email);
     if (checkEmail) {
       return {
@@ -58,15 +65,7 @@ let createNewUser = async (req, res) => {
         DT: "",
       };
     }
-    // if (checkRole(roleId) === false) {
-    //   return {
-    //     EM: "Role does not exist",
-    //     EC: "1",
-    //     DT: "",
-    //   };
-    // }
 
-    // Tạo một đối tượng newUser từ thông tin nhận được từ request
     const newUser = {
       firstName: firstName || "",
       lastName: lastName || "",
@@ -98,13 +97,8 @@ let createNewUser = async (req, res) => {
 let updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const {
-      firstName,
-      lastName,
-      email,
-      phoneNumber,
-      address,
-    } = req.body;
+    const { firstName, lastName, email, phoneNumber, address, roleId, image } =
+      req.body;
 
     // Kiểm tra xem người dùng có tồn tại trong cơ sở dữ liệu không
     const user = await db.User.findOne({ where: { id: id } });
@@ -122,6 +116,8 @@ let updateUser = async (req, res) => {
     user.email = email || user.email;
     user.phoneNumber = phoneNumber || user.phoneNumber;
     user.address = address || user.address;
+    user.roleId = roleId || user.roleId;
+    user.image = image || user.image;
 
     // Lưu thông tin người dùng đã cập nhật vào cơ sở dữ liệu
     await user.save();
@@ -149,6 +145,13 @@ let deleteUser = async (req, res) => {
     if (!user) {
       return {
         EM: "User does not exist",
+        EC: "1",
+        DT: "",
+      };
+    }
+    if (user.roleId === 1) {
+      return {
+        EM: "Can not delete admin",
         EC: "1",
         DT: "",
       };
@@ -288,4 +291,11 @@ let readUserPaginate = async (req, res) => {
     };
   }
 };
-module.exports = { readAllUser, createNewUser, updateUser, deleteUser, login,readUserPaginate };
+module.exports = {
+  readAllUser,
+  createNewUser,
+  updateUser,
+  deleteUser,
+  login,
+  readUserPaginate,
+};
