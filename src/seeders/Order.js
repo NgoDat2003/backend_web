@@ -1,0 +1,116 @@
+"use strict";
+
+module.exports = {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.bulkInsert(
+      "Order",
+      [
+        {
+          userId: 1,
+          orderStatus: "Đã đặt hàng",
+          orderPayment: "Tiền mặt",
+          orderTotal: 10000,
+          orderAddress: "123 Main St",
+          orderPaymentStatus: "Đã thanh toán",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          userId: 2,
+          orderStatus: "Đang giao hàng",
+          orderPayment: "Chuyển khoản",
+          orderTotal: 200.0,
+          orderAddress: "456 Oak St",
+          orderPaymentStatus: "Đã thanh toán",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          userId: 3,
+          orderStatus: "Đã giao hàng",
+          orderPayment: "Tiền mặt",
+          orderTotal: 150.0,
+          orderAddress: "789 Pine St",
+          orderPaymentStatus: "Đã thanh toán",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          userId: 4,
+          orderStatus: "Đã hủy",
+          orderPayment: "Chuyển khoản",
+          orderTotal: 300.0,
+          orderAddress: "321 Elm St",
+          orderPaymentStatus: "Chưa thanh toán",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          userId: 5,
+          orderStatus: "Đang đặt hàng",
+          orderPayment: "Tiền mặt",
+          orderTotal: 250.0,
+          orderAddress: "654 Maple St",
+          orderPaymentStatus: "Chưa thanh toán",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          userId: 6,
+          orderStatus: "Đã đặt hàng",
+          orderPayment: "Chuyển khoản",
+          orderTotal: 350.0,
+          orderAddress: "987 Cedar St",
+          orderPaymentStatus: "Đã thanh toán",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          userId: 7,
+          orderStatus: "Đang giao hàng",
+          orderPayment: "Tiền mặt",
+          orderTotal: 400.0,
+          orderAddress: "123 Birch St",
+          orderPaymentStatus: "Chưa thanh toán",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          userId: 8,
+          orderStatus: "Đã giao hàng",
+          orderPayment: "Chuyển khoản",
+          orderTotal: 450.0,
+          orderAddress: "456 Walnut St",
+          orderPaymentStatus: "Đã thanh toán",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          userId: 9,
+          orderStatus: "Đã hủy",
+          orderPayment: "Tiền mặt",
+          orderTotal: 500.0,
+          orderAddress: "789 Cherry St",
+          orderPaymentStatus: "Chưa thanh toán",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          userId: 10,
+          orderStatus: "Đang giao hàng",
+          orderPayment: "Chuyển khoản",
+          orderTotal: 550.0,
+          orderAddress: "321 Apple St",
+          orderPaymentStatus: "Đã thanh toán",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ],
+      {}
+    );
+  },
+
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.bulkDelete("Order", null, {});
+  },
+};

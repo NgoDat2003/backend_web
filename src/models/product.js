@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
       // Laptop
       laptopBrand: DataTypes.STRING,
       color: DataTypes.STRING,
-      cpuSeries: DataTypes.STRING,
+      laptopCpuSeries: DataTypes.STRING,
       // Thiết bị âm thanh
       audioBrand: DataTypes.STRING,
       microphoneType: DataTypes.STRING,

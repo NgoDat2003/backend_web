@@ -1,12 +1,10 @@
 import e from "express";
 import db from "../models";
-
+import imageService from "./imageService";
 let readAllProduct = async (req, res) => {
   try {
     const products = await db.Product.findAll({
-      attributes: ["id", "name", "price", "mainImage", "description"],
-      nest: true,
-      raw: true,
+      attributes: ["id", "productName", "price", "stockQuantity"],
     });
     return {
       EM: "Get all product success",
@@ -14,6 +12,7 @@ let readAllProduct = async (req, res) => {
       DT: products,
     };
   } catch (error) {
+    console.log(error);
     return {
       EM: "Get all product failed",
       EC: "-1",
@@ -23,35 +22,29 @@ let readAllProduct = async (req, res) => {
 };
 let readProductPaginate = async (req, res) => {
   try {
-    console.log(req.query);
     const limit = req.query.limit;
     const currentPage = req.query.currentPage;
+    const sort = req.query.sort ? req.query.sort.split(",") : ["id"];
+    const order = req.query.order ? req.query.order.split(",") : ["ASC"];
     const totalItems = await db.Product.count();
     const offset = (currentPage - 1) * limit;
     const products = await db.Product.findAll({
-      attributes: [
-        "id",
-        "productName",
-        "price",
-        "mainImage",
-        "description",
-        "stockQuantity",
-        "categoryId",
-        "screenBrand",
-        "laptopBrand",
-        "audioBrand",
-        "pcBrand",
-      ],
+      include: {
+        model: db.Category,
+        attributes: ["id", "categoryName"],
+      },
       nest: true,
       raw: true,
       limit: parseInt(limit),
       offset: parseInt(offset),
+      order: sort.map((sortField, index) => [sortField, order[index] || "ASC"]),
     });
     const totalPages = Math.ceil(totalItems / limit);
     let data = {
       currentPage: currentPage,
       totalPage: totalPages,
       data: products,
+      totalItems: totalItems,
     };
     return {
       EM: "Get all product success",
@@ -86,11 +79,12 @@ const createProduct = async (req, res) => {
       color,
       audioBrand,
       microphoneType,
+      fileList,
+      laptopCpuSeries
     } = req.body;
     if (
       !productName ||
       !price ||
-      !mainImage ||
       !description ||
       !stockQuantity ||
       !categoryId
@@ -118,7 +112,7 @@ const createProduct = async (req, res) => {
         };
       }
     }
-    if (+categoryId === 2) {
+    if (+categoryId === 3) {
       if (!pcBrand || !cpuSeries || !ramSize) {
         return {
           EM: "Missing required fields 4",
@@ -127,8 +121,9 @@ const createProduct = async (req, res) => {
         };
       }
     }
-    if (+categoryId === 3) {
-      if (!laptopBrand || !cpuSeries || !ramSize) {
+    if (+categoryId === 2) {
+      console.log(laptopBrand, color, laptopCpuSeries);
+      if (!laptopBrand || !color || !laptopCpuSeries ) {
         return {
           EM: "Missing required fields 5",
           EC: "-1",
@@ -152,6 +147,7 @@ const createProduct = async (req, res) => {
         DT: null,
       };
     }
+
     const product = await db.Product.create({
       productName,
       price,
@@ -171,12 +167,23 @@ const createProduct = async (req, res) => {
       audioBrand,
       microphoneType,
     });
+    if (Array.isArray(fileList) && fileList.length > 0) {
+      let data = await imageService.createSubImageProduct(product.id, fileList);
+      if (data.EC !== "0") {
+        return {
+          EM: "Create product failed 9",
+          EC: "-1",
+          DT: null,
+        };
+      }
+    }
     return {
       EM: "Create product success",
       EC: "0",
       DT: product,
     };
   } catch (error) {
+    console.log(error);
     return {
       EM: "Create product failed 8",
       EC: "-1",
@@ -210,7 +217,6 @@ let getCategoryById = async (id) => {
 let updateProduct = async (req, res) => {
   try {
     const {
-      id,
       productName,
       price,
       mainImage,
@@ -226,38 +232,28 @@ let updateProduct = async (req, res) => {
       ramSize,
       laptopBrand,
       color,
+      laptopCpuSeries,
+      audioBrand,
+      microphoneType,
+      fileList,
     } = req.body;
-    if (
-      !id ||
-      !productName ||
-      !price ||
-      !mainImage ||
-      !description ||
-      !stockQuantity ||
-      !categoryId
-    ) {
+    const id = req.params.id;
+    if (!id) {
       return {
         EM: "Missing required fields",
         EC: "-1",
         DT: null,
       };
     }
-    if (isNaN(price) || isNaN(stockQuantity)) {
-      return {
-        EM: "Invalid fields",
-        EC: "-1",
-        DT: null,
-      };
-    }
-    let checkCategory = await getCategoryById(id);
-    if (+categoryId !== +checkCategory) {
-      console.log(categoryId);
-      console.log(checkCategory);
-      return {
-        EM: "Lỗi không trùng category",
-        EC: "-1",
-        DT: null,
-      };
+    if (fileList && Array.isArray(fileList) && fileList.length > 0) {
+      let data = await imageService.updateSubImageProduct(id, fileList);
+      if (data.EC !== "0") {
+        return {
+          EM: "Update product failed",
+          EC: "-1",
+          DT: null,
+        };
+      }
     }
     const product = await db.Product.update(
       {
@@ -275,6 +271,9 @@ let updateProduct = async (req, res) => {
         ramSize,
         laptopBrand,
         color,
+        laptopCpuSeries,
+        audioBrand,
+        microphoneType,
       },
       {
         where: {
@@ -282,6 +281,7 @@ let updateProduct = async (req, res) => {
         },
       }
     );
+    console.log(laptopCpuSeries);
     return {
       EM: "Update product success",
       EC: "0",
@@ -297,7 +297,7 @@ let updateProduct = async (req, res) => {
 };
 const deleteProduct = async (req, res) => {
   try {
-    const id = req.query.id;
+    const id = req.params.id;
     if (!id) {
       return {
         EM: "Missing required fields",
@@ -358,6 +358,56 @@ const readProductById = async (req, res) => {
     };
   }
 };
+let readProductPaginateByCategory = async (req, res) => {
+  try {
+    console.log(req.query);
+    const limit = req.query.limit;
+    const currentPage = req.query.currentPage;
+    const categoryId = req.query.id;
+    const sort = req.query.sort ? req.query.sort.split(",") : ["id"];
+    const order = req.query.order ? req.query.order.split(",") : ["ASC"];
+    const totalItems = await db.Product.count(
+      {
+        where: {
+          categoryId: categoryId
+        }
+      }
+    );
+    const offset = (currentPage - 1) * limit;
+    const products = await db.Product.findAll({
+      include: {
+        model: db.Category,
+        attributes: ["id", "categoryName"],
+      },
+      nest: true,
+      raw: true,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: sort.map((sortField, index) => [sortField, order[index] || "ASC"]),
+      where: {
+        categoryId: categoryId
+      }
+    });
+    const totalPages = Math.ceil(totalItems / limit);
+    let data = {
+      currentPage: currentPage,
+      totalPage: totalPages,
+      data: products,
+      totalItems: totalItems,
+    };
+    return {
+      EM: "Get all product success",
+      EC: "0",
+      DT: data,
+    };
+  } catch (error) {
+    return {
+      EM: "Get all product failed",
+      EC: "-1",
+      DT: error,
+    };
+  }
+};
 module.exports = {
   readAllProduct,
   readProductPaginate,
@@ -365,4 +415,5 @@ module.exports = {
   updateProduct,
   deleteProduct,
   readProductById,
+  readProductPaginateByCategory
 };

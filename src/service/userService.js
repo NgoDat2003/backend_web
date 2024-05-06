@@ -1,6 +1,8 @@
 import db from "../models/index";
 import bcrypt from "bcryptjs";
 import jwtMiddleware from "../middleware/jwtMiddleware";
+import { Op } from "sequelize";
+
 const multer = require("multer");
 
 const storage = multer.diskStorage({
@@ -29,7 +31,7 @@ const isEmail = async (email) => {
 
 let readAllUser = async (req, res) => {
   try {
-    let list = await db.User.findAll();
+    let list = await db.User.findAll({attributes: ["id"]});
     return {
       EM: "Get all user successfully",
       EC: "0",
@@ -243,9 +245,10 @@ const login = async (req, res) => {
 };
 let readUserPaginate = async (req, res) => {
   try {
-    console.log(req.query);
     const limit = req.query.limit;
-    const currentPage = req.query.currentPage;
+    const currentPage = req.query.currentPage
+    const sort = req.query.sort ? req.query.sort.split(',') : ['id']; ;
+    const order = req.query.order ? req.query.order.split(',') : ['ASC'];
     const totalItems = await db.User.count();
     const offset = (currentPage - 1) * limit;
     const users = await db.User.findAll({
@@ -258,6 +261,8 @@ let readUserPaginate = async (req, res) => {
         "image",
         "address",
         "phoneNumber",
+        "createdAt",
+        "updatedAt",
       ],
       include: [
         {
@@ -269,6 +274,8 @@ let readUserPaginate = async (req, res) => {
       raw: true,
       limit: parseInt(limit),
       offset: parseInt(offset),
+      order: sort.map((sortField, index) => [sortField, order[index] || 'ASC']),
+
     });
     const totalPages = Math.ceil(totalItems / limit);
     let data = {
@@ -291,6 +298,7 @@ let readUserPaginate = async (req, res) => {
     };
   }
 };
+
 module.exports = {
   readAllUser,
   createNewUser,

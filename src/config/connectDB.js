@@ -4,6 +4,10 @@ const sequelize = new Sequelize("shop_be", "root", null, {
   host: "localhost",
   dialect: "mysql",
   logging: false,
+  define: {
+    charset: 'utf8mb4',
+    collate: 'utf8mb4_general_ci',
+  }
 });
 const connect = async () => {
   try {

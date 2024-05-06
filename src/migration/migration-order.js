@@ -11,14 +11,20 @@ module.exports = {
       userId: {
         type: Sequelize.INTEGER,
       },
-      orderDate: {
-        type: Sequelize.DATE,
-      },
       orderStatus: {
+        type: Sequelize.STRING,
+      },
+      orderPayment: {
         type: Sequelize.STRING,
       },
       orderTotal: {
         type: Sequelize.DECIMAL,
+      },
+      orderAddress: {
+        type: Sequelize.STRING,
+      },
+      orderPaymentStatus: {
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,

@@ -17,9 +17,11 @@ module.exports = (sequelize, DataTypes) => {
   };
   Order.init({
     userId: DataTypes.INTEGER,
-    orderDate: DataTypes.DATE,
-    orderStatus: DataTypes.STRING,
+    orderStatus: DataTypes.STRING,//đã đặt hàng, đang giao hàng, đã giao hàng, đã hủy,đang đặt hàng
+    orderPayment: DataTypes.STRING,//tiền mặt, chuyển khoản
     orderTotal: DataTypes.DECIMAL,
+    orderAddress: DataTypes.STRING,
+    orderPaymentStatus: DataTypes.STRING,//đã thanh toán, chưa thanh toán
   }, {
     sequelize,
     modelName: 'Order',

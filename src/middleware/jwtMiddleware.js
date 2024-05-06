@@ -41,19 +41,21 @@ const getTokenFromBearer = (req) => {
   return null;
 };
 const checkUserToken = (req, res, next) => {
-  // console.log(req.cookies);
-  const token = req.cookies.token;
-  const bearer = getTokenFromBearer(req);
-  const tokenNew = token || bearer;
-  if (!tokenNew) {
-    return res.status(401).json({
-      EM: "Token not found",
-      EC: "1",
-      DT: "",
-    });
-  }
   try {
-    let decoded = verifyToken(token);
+    const token = req.cookies.token;
+    // const bearer = getTokenFromBearer(req);
+    // console.log("bearer: ", bearer);
+    const tokenNew = token;
+    if (tokenNew===undefined || tokenNew===null || tokenNew==="") {
+      console.log("Token not found");
+      return res.status(401).json({
+        EM: "Token not found",
+        EC: "1",
+        DT: "",
+      });
+    }
+    console.log(2);
+    let decoded = verifyToken(tokenNew);
     if (decoded) {
       let payload = {
         id: decoded.payload.id,

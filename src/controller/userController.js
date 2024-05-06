@@ -137,6 +137,7 @@ const handleDeleteUser = async (req, res) => {
   }
 }
 
+
 module.exports = {
   readAllUser,
   handleRegister,
@@ -146,5 +147,5 @@ module.exports = {
   handleUpdateUser,
   handleReadUserPaginate,
   handleCreateUser,
-  handleDeleteUser
+  handleDeleteUser,
 };
