@@ -1,6 +1,7 @@
 import e from "express";
 import db from "../models";
 import imageService from "./imageService";
+import { Op } from "sequelize";
 let readAllProduct = async (req, res) => {
   try {
     const products = await db.Product.findAll({
@@ -61,7 +62,7 @@ let readProductPaginate = async (req, res) => {
 };
 const createProduct = async (req, res) => {
   try {
-    const {
+    let {
       productName,
       price,
       mainImage,
@@ -80,7 +81,7 @@ const createProduct = async (req, res) => {
       audioBrand,
       microphoneType,
       fileList,
-      laptopCpuSeries
+      laptopCpuSeries,
     } = req.body;
     if (
       !productName ||
@@ -95,6 +96,7 @@ const createProduct = async (req, res) => {
         DT: null,
       };
     }
+    price = price*1;
     if (isNaN(price) || isNaN(stockQuantity)) {
       return {
         EM: "Invalid fields 2",
@@ -123,7 +125,7 @@ const createProduct = async (req, res) => {
     }
     if (+categoryId === 2) {
       console.log(laptopBrand, color, laptopCpuSeries);
-      if (!laptopBrand || !color || !laptopCpuSeries ) {
+      if (!laptopBrand || !color || !laptopCpuSeries) {
         return {
           EM: "Missing required fields 5",
           EC: "-1",
@@ -216,7 +218,7 @@ let getCategoryById = async (id) => {
 };
 let updateProduct = async (req, res) => {
   try {
-    const {
+    let {
       productName,
       price,
       mainImage,
@@ -237,6 +239,7 @@ let updateProduct = async (req, res) => {
       microphoneType,
       fileList,
     } = req.body;
+    price = price*1;
     const id = req.params.id;
     if (!id) {
       return {
@@ -360,19 +363,16 @@ const readProductById = async (req, res) => {
 };
 let readProductPaginateByCategory = async (req, res) => {
   try {
-    console.log(req.query);
     const limit = req.query.limit;
     const currentPage = req.query.currentPage;
     const categoryId = req.query.id;
     const sort = req.query.sort ? req.query.sort.split(",") : ["id"];
     const order = req.query.order ? req.query.order.split(",") : ["ASC"];
-    const totalItems = await db.Product.count(
-      {
-        where: {
-          categoryId: categoryId
-        }
-      }
-    );
+    const totalItems = await db.Product.count({
+      where: {
+        categoryId: categoryId,
+      },
+    });
     const offset = (currentPage - 1) * limit;
     const products = await db.Product.findAll({
       include: {
@@ -385,8 +385,8 @@ let readProductPaginateByCategory = async (req, res) => {
       offset: parseInt(offset),
       order: sort.map((sortField, index) => [sortField, order[index] || "ASC"]),
       where: {
-        categoryId: categoryId
-      }
+        categoryId: categoryId,
+      },
     });
     const totalPages = Math.ceil(totalItems / limit);
     let data = {
@@ -408,6 +408,138 @@ let readProductPaginateByCategory = async (req, res) => {
     };
   }
 };
+const filterProduct = async (req, res) => {
+  try {
+    const sort = req.query.sort ? req.query.sort.split(",") : ["id"];
+    const order = req.query.order ? req.query.order.split(",") : ["ASC"];
+    const {
+      minPrice,
+      maxPrice,
+      screenBrand,
+      screenSize,
+      resolution,
+      panelType,
+      pcBrand,
+      cpuSeries,
+      ramSize,
+      laptopBrand,
+      color,
+      laptopCpuSeries,
+      audioBrand,
+      microphoneType,
+      id,
+      limit,
+      currentPage,
+    } = req.query;
+    const categoryId = id;
+    let whereCondition = {
+      price: {
+        [Op.between]: [minPrice, maxPrice],
+      },
+      categoryId,
+    };
+
+    if (screenBrand) whereCondition.screenBrand = screenBrand;
+    if (screenSize) whereCondition.screenSize = screenSize;
+    if (resolution) whereCondition.resolution = resolution;
+    if (panelType) whereCondition.panelType = panelType;
+    if (pcBrand) whereCondition.pcBrand = pcBrand;
+    if (cpuSeries) whereCondition.cpuSeries = cpuSeries;
+    if (ramSize) whereCondition.ramSize = ramSize;
+    if (laptopBrand) whereCondition.laptopBrand = laptopBrand;
+    if (color) whereCondition.color = color;
+    if (laptopCpuSeries) whereCondition.laptopCpuSeries = laptopCpuSeries;
+    if (audioBrand) whereCondition.audioBrand = audioBrand;
+    if (microphoneType) whereCondition.microphoneType = microphoneType;
+
+    const offset = (currentPage - 1) * limit;
+    const totalItems = await db.Product.count({
+      where: whereCondition,
+    });
+
+    const products = await db.Product.findAll({
+      include: {
+        model: db.Category,
+        attributes: ["id", "categoryName"],
+      },
+      nest: true,
+      raw: true,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: sort.map((sortField, index) => [sortField, order[index] || "ASC"]),
+      where: whereCondition,
+    });
+    const totalPages = Math.ceil(totalItems / limit);
+    let data = {
+      currentPage: currentPage,
+      totalPage: totalPages,
+      data: products,
+      totalItems: totalItems,
+    };
+    return {
+      EM: "Filter product success",
+      EC: "0",
+      DT: data,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Filter product failed",
+      EC: "-1",
+      DT: error,
+    };
+  }
+};
+const searchProduct = async (req, res) => {
+  try {
+    console.log(1);
+    const search = req.query.search;
+    console.log(search);
+    const products = await db.Product.findAll({
+      where: {
+        productName: {
+          [Op.like]: `%${search}%`,
+        },
+      },
+    });
+    return {
+      EM: "Search product success",
+      EC: "0",
+      DT: products,
+    };
+  } catch (error) {
+    console.log(error);
+    return {
+      EM: "Search product failed",
+      EC: "-1",
+      DT: error,
+    };
+  }
+}
+const getStatistic = async (req, res) => {
+  try {
+    const totalProduct = await db.Product.count();
+    const totalCategory = await db.Category.count();
+    const totalOrder = await db.Order.count();
+    const totalUser = await db.User.count();
+    return {
+      EM: "Get statistic success",
+      EC: "0",
+      DT: {
+        totalProduct,
+        totalCategory,
+        totalOrder,
+        totalUser,
+      },
+    };
+  } catch (error) {
+    return {
+      EM: "Get statistic failed",
+      EC: "-1",
+      DT: error,
+    };
+  }
+}
 module.exports = {
   readAllProduct,
   readProductPaginate,
@@ -415,5 +547,8 @@ module.exports = {
   updateProduct,
   deleteProduct,
   readProductById,
-  readProductPaginateByCategory
+  filterProduct,
+  readProductPaginateByCategory,
+  searchProduct,
+  getStatistic
 };

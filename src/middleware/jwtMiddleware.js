@@ -54,7 +54,6 @@ const checkUserToken = (req, res, next) => {
         DT: "",
       });
     }
-    console.log(2);
     let decoded = verifyToken(tokenNew);
     if (decoded) {
       let payload = {
