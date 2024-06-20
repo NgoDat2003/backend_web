@@ -18,7 +18,6 @@ const customizeConfig = {
     charset: "utf8mb4",
     collate: "utf8mb4_general_ci",
     freezeTableName: true,
-    timestamps: false,
   },
   dialectOptions:
     process.env.IS_DIALECT === "true"
