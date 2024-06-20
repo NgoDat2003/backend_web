@@ -17,12 +17,23 @@ const customizeConfig = {
   define: {
     charset: "utf8mb4",
     collate: "utf8mb4_general_ci",
+    freezeTableName: true,
+    timestamps: false,
   },
+  dialectOptions:
+    process.env.IS_DIALECT === "true"
+      ? {
+          ssl: {
+            require: true,
+            rejectUnauthorized: false,
+          },
+        }
+      : {},
 };
 sequelize = new Sequelize(
   process.env.DB_DATABASE,
   process.env.DB_USER,
-  null,
+  process.env.DB_PASSWORD,
   customizeConfig
 );
 
