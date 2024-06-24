@@ -212,7 +212,7 @@ const login = async (req, res) => {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        roleId: user.roleid,
+        roleId: user.roleId,
         image: user.image,
         address: user.address,
         phoneNumber: user.phoneNumber,
