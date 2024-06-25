@@ -61,7 +61,7 @@ const checkUserToken = (req, res, next) => {
         email: decoded.payload.email,
         firstName: decoded.payload.firstName,
         lastName: decoded.payload.lastName,
-        roleId: decoded.payload.roleid,
+        roleId: decoded.payload.roleId,
         image: decoded.payload.image,
         address: decoded.payload.address,
         phoneNumber: decoded.payload.phoneNumber,
