@@ -11,7 +11,15 @@ const createOrder = async (req, res) => {
       orderPaymentStatus,
       productList,
     } = req.body;
-
+    console.log(
+      userId,
+      orderStatus,
+      orderPayment,
+      orderTotal,
+      orderAddress,
+      orderPaymentStatus,
+      productList
+    );
     const newOrder = await db.Order.create({
       userId: userId,
       orderStatus: orderStatus,
@@ -20,7 +28,6 @@ const createOrder = async (req, res) => {
       orderAddress: orderAddress,
       orderPaymentStatus: orderPaymentStatus,
     });
-
     if (newOrder) {
       let orderDetails = productList.map((product) => {
         return {
@@ -63,7 +70,7 @@ const createOrder = async (req, res) => {
 };
 const readAllOrderPagination = async (req, res) => {
   try {
-    const limit = req.query.limit ||10;
+    const limit = req.query.limit || 10;
     const currentPage = req.query.currentPage || 1;
     const sort = req.query.sort ? req.query.sort.split(",") : ["id"];
     const order = req.query.order ? req.query.order.split(",") : ["ASC"];
