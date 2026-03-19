@@ -10,6 +10,6 @@ RUN npm install -g @babel/core @babel/cli
 
 COPY . .
 
-RUN npm run build-src
+RUN npm run build
 
 CMD ["npm", "run", "start"]
