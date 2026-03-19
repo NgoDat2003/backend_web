@@ -3,7 +3,14 @@ require("dotenv").config();
 function configCors(app) {
   return app.use(function (req, res, next) {
     // Website you wish to allow to connect
-    res.setHeader("Access-Control-Allow-Origin", process.env.REACT_URL);
+    const origin = req.headers.origin;
+    if (origin) {
+        res.setHeader("Access-Control-Allow-Origin", origin);
+    } else if (process.env.REACT_URL) {
+        res.setHeader("Access-Control-Allow-Origin", process.env.REACT_URL.replace(/\/$/, ''));
+    } else {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+    }
 
     // Request methods you wish to allow
     res.setHeader(
